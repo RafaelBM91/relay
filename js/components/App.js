@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Relay from 'react-relay';
 
-import AppHomeRoute from '../routes/AppHomeRoute.js';
+import { ClienteRoute, ArticuloRoute, ClienteIdRoute } from '../routes/AppRoute.js';
 import clientes from './clientes';
 import articulos from './articulos';
 
@@ -11,19 +11,27 @@ class App extends Component {
       <div>
         <Relay.RootContainer
           Component={clientes}
-          route={new AppHomeRoute()}
+          route={new ClienteRoute()}
           renderLoading={function() {
             return <div>Loading...</div>;
           }}
         />
         <br/><br/>
-        {/*{<Relay.RootContainer
+        <Relay.RootContainer
           Component={articulos}
-          route={new AppHomeRoute1()}
+          route={new ArticuloRoute()}
           renderLoading={function() {
             return <div>Loading...</div>;
           }}
-        />}*/}
+        />
+        <br/><br/>
+        <Relay.RootContainer
+          Component={clientes}
+          route={new ClienteIdRoute()}
+          renderLoading={function() {
+            return <div>Loading...</div>;
+          }}
+        />
       </div>
     );
   }

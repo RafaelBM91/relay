@@ -1,0 +1,33 @@
+query {
+  clientes {
+    ...art1
+  },
+  # articulo {
+  #   ...art1
+  # }
+  # clienteId(id:1) {
+  #   ...art1
+  # }
+}
+
+fragment art1 on ClienteType {
+  clientes(id:1) {
+    ...art2
+  }
+}
+
+fragment art2 on ClienteModel {
+  id
+  cedula
+}
+
+# fragment art1 on ArticuloType {
+#   articulos {
+#     ...art2
+#   }
+# }
+
+# fragment art2 on ArticuloModel {
+#   id
+#   descripcion
+# }

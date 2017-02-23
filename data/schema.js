@@ -36,6 +36,10 @@ const DB = {
   ],
 };
 
+const ClienteID = (id) => {
+  return { clientes: [DB.clientes[id]] };
+};
+
 const ClienteModel = new GraphQLObjectType({
   name: 'ClienteModel',
   fields: () => ({
@@ -54,8 +58,25 @@ const ClienteModel = new GraphQLObjectType({
   })
 });
 
-/*const ArticulosType = new GraphQLObjectType({
-  name: 'Articulo',
+const ClienteType = new GraphQLObjectType({
+  name: 'ClienteType',
+  fields: () => ({
+    clientes: {
+      type: new GraphQLList(ClienteModel),
+      args: {
+        id: {
+          type: GraphQLInt,
+        },
+      },
+      resolve: (root,args) => {
+        return (args.id) ? root.clientes[id] : root.clientes;
+      },
+    },
+  }),
+});
+
+const ArticuloModel = new GraphQLObjectType({
+  name: 'ArticuloModel',
   fields: () => ({
     id: {
       type: GraphQLString,
@@ -64,22 +85,26 @@ const ClienteModel = new GraphQLObjectType({
       type: GraphQLString,
     },
   })
-});*/
+});
 
-const ClienteType = new GraphQLObjectType({
-  name: 'ClienteType',
+const ArticuloType = new GraphQLObjectType({
+  name: 'ArticuloType',
   fields: () => ({
-    clientes: {
-      type: new GraphQLList(ClienteModel),
+    articulos: {
+      type: new GraphQLList(ArticuloModel),
     },
-  }),
+  })
 });
 
 const queryType = new GraphQLObjectType({
   name: 'Query',
   fields: () => ({
-    cliente: {
+    clientes: {
       type: ClienteType,
+      resolve: () => DB,
+    },
+    articulo: {
+      type: ArticuloType,
       resolve: () => DB,
     },
   }),

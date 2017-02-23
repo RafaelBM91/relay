@@ -25,6 +25,9 @@ Cliente = Relay.createContainer(Cliente, {
 
 class Store extends React.Component {
   render() {
+    console.log(
+      this.props.cliente.clientes[0]
+    );
     return (
       <div>
         <ul>

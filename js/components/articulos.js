@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Relay from 'react-relay';
 
-class Articulo extends React.Component {
+class ArticuloModel extends React.Component {
   render() {
     var {id, descripcion} = this.props.articulo;
     return (
@@ -12,24 +12,24 @@ class Articulo extends React.Component {
   }
 }
 
-Articulo = Relay.createContainer(Articulo, {
+ArticuloModel = Relay.createContainer(ArticuloModel, {
   fragments: {
     articulo: () => Relay.QL`
-      fragment on Articulo {
-        id,
-        descripcion,
+      fragment on ArticuloModel {
+        id
+        descripcion
       }
     `,
   },
 });
 
-class Store extends React.Component {
+class ArticuloType extends React.Component {
   render() {
     return (
       <div>
         <ul>
-          {this.props.store.articulos.map(
-            (articulo,index) => <Articulo key={`articulo-${index}`} articulo={articulo} />
+          {this.props.articulo.articulos.map(
+            (articulo,index) => <ArticuloModel key={`articulo-${index}`} articulo={articulo} />
           )}
         </ul>
       </div>
@@ -37,19 +37,20 @@ class Store extends React.Component {
   }
 }
 
-Store = Relay.createContainer(Store, {
+ArticuloType = Relay.createContainer(ArticuloType, {
   fragments: {
-    store: () => Relay.QL`
-      fragment on Store {
+    articulo: () => {
+      return Relay.QL`
+      fragment on ArticuloType {
         articulos {
-          ${Articulo.getFragment('articulo')}
+          ${ArticuloModel.getFragment('articulo')}
         },
       }
-    `,
+    `},
   },
 });
 
-export default Store;
+export default ArticuloType;
 
 /*
 
