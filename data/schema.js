@@ -10,42 +10,17 @@ import {
   GraphQLString,
 } from 'graphql';
 
-import datos from './database';
+import {
+  mutationWithClientMutationId
+} from 'graphql-relay';
 
-import { getArrayData, resolveModelsByClass } from 'sequelize-relay';
+import { resolveArrayData } from 'sequelize-relay';
 
-const DB = {
-  clientes: [
-    {id: "0", cedula: "19529584", nombre: "Rafael", telefono: "0414-7375800"},
-    {id: "1", cedula: "19529584", nombre: "Rafael", telefono: "0414-7375800"},
-    {id: "2", cedula: "19529584", nombre: "Rafael", telefono: "0414-7375800"},
-    {id: "3", cedula: "19529584", nombre: "Rafael", telefono: "0414-7375800"},
-    {id: "4", cedula: "19529584", nombre: "Rafael", telefono: "0414-7375800"},
-    {id: "5", cedula: "19529584", nombre: "Rafael", telefono: "0414-7375800"},
-    {id: "6", cedula: "19529584", nombre: "Rafael", telefono: "0414-7375800"},
-    {id: "7", cedula: "19529584", nombre: "Rafael", telefono: "0414-7375800"},
-    {id: "8", cedula: "19529584", nombre: "Rafael", telefono: "0414-7375800"},
-    {id: "9", cedula: "19529584", nombre: "Rafael", telefono: "0414-7375800"},
-  ],
-  articulos: [
-    {id: "0", descripcion: "articulo"},
-    {id: "1", descripcion: "articulo"},
-    {id: "2", descripcion: "articulo"},
-    {id: "3", descripcion: "articulo"},
-    {id: "4", descripcion: "articulo"},
-  ],
-};
-
-const ClienteID = (id) => {
-  return { clientes: [DB.clientes[id]] };
-};
+import models from './database';
 
 const ClienteModel = new GraphQLObjectType({
   name: 'ClienteModel',
   fields: () => ({
-    id: {
-      type: GraphQLString,
-    },
     cedula: {
       type: GraphQLString,
     },
@@ -55,21 +30,27 @@ const ClienteModel = new GraphQLObjectType({
     telefono: {
       type: GraphQLString,
     },
+    detalles: {
+      type: new GraphQLList(DetalleModel),
+      resolve({cedula}) {
+        return resolveArrayData(models.detalle.findAll({where: {clienteCedula: cedula}}));
+      },
+    }
   })
 });
 
 const ClienteType = new GraphQLObjectType({
   name: 'ClienteType',
   fields: () => ({
-    clientes: {
+    cliente: {
       type: new GraphQLList(ClienteModel),
       args: {
-        id: {
-          type: GraphQLInt,
-        },
+        cedula: {
+          type: new GraphQLNonNull(GraphQLString),
+        }
       },
-      resolve: (root,args) => {
-        return (args.id) ? root.clientes[id] : root.clientes;
+      resolve(root,{cedula}) {
+        return resolveArrayData(models.cliente.findAll({where: {cedula}}))
       },
     },
   }),
@@ -84,6 +65,12 @@ const ArticuloModel = new GraphQLObjectType({
     descripcion: {
       type: GraphQLString,
     },
+    cantidad: {
+      type: GraphQLInt,
+    },
+    precio: {
+      type: GraphQLFloat,
+    },
   })
 });
 
@@ -92,21 +79,51 @@ const ArticuloType = new GraphQLObjectType({
   fields: () => ({
     articulos: {
       type: new GraphQLList(ArticuloModel),
+      resolve(root,args) {
+        return root;
+      }
     },
   })
+});
+
+const DetalleModel = new GraphQLObjectType({
+  name: 'DetalleModel',
+  fields: () => {
+    return {
+      cantidad: {
+        type: GraphQLInt,
+        resolve({cantidad}) {
+          return cantidad;
+        },
+      },
+      articulo: {
+        type: new GraphQLList(ArticuloModel),
+        resolve({articuloId}) {
+          return resolveArrayData(models.articulo.findAll({where:{id: articuloId}}));
+        },
+      }
+    }
+  }
 });
 
 const queryType = new GraphQLObjectType({
   name: 'Query',
   fields: () => ({
-    clientes: {
+    cliente: {
       type: ClienteType,
-      resolve: () => DB,
+      resolve: () => ClienteType,
     },
-    articulo: {
+    articulos: {
       type: ArticuloType,
-      resolve: () => DB,
+      resolve: () => resolveArrayData(models.articulo.findAll()),
     },
+  }),
+});
+
+const mutationType = new GraphQLObjectType({
+  name: 'Mutation',
+  fields: () => ({
+    createComment: CreateCommentMutation,
   }),
 });
 

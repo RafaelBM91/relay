@@ -11,6 +11,7 @@ const sequelize = new Sequelize(
 
 const Cliente = sequelize.define('cliente',{
   cedula: {
+    primaryKey: true,
     type: Sequelize.STRING,
     allowNull: false,
     unique: true,
@@ -25,6 +26,32 @@ const Cliente = sequelize.define('cliente',{
   },
 });
 
+const Articulo = sequelize.define('articulo',{
+  descripcion: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  precio: {
+    type: Sequelize.FLOAT(8,2),
+    allowNull: false,
+  },
+  stock: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+  },
+});
+
+const Detalle = sequelize.define('detalle',{
+  cantidad: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+  },
+});
+
+Cliente.hasMany(Detalle);
+
+Articulo.hasMany(Detalle);
+
 sequelize.sync();
 
-export default sequelize;
+export default sequelize.models;

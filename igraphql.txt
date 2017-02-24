@@ -1,33 +1,31 @@
 query {
-  clientes {
-    ...art1
-  },
-  # articulo {
-  #   ...art1
-  # }
-  # clienteId(id:1) {
-  #   ...art1
-  # }
-}
-
-fragment art1 on ClienteType {
-  clientes(id:1) {
-    ...art2
+  cliente {
+    ...cli1
   }
 }
 
-fragment art2 on ClienteModel {
-  id
-  cedula
+fragment cli1 on ClienteType {
+  cliente(cedula:"6457144") {
+    ...cli2
+  }
 }
 
-# fragment art1 on ArticuloType {
-#   articulos {
-#     ...art2
-#   }
-# }
+fragment cli2 on ClienteModel {
+  nombre
+  telefono
+  detalles {
+    ...cli3
+  }
+}
 
-# fragment art2 on ArticuloModel {
-#   id
-#   descripcion
-# }
+fragment cli3 on DetalleModel {
+  cantidad
+  articulo {
+    ...cli4
+  }
+}
+
+fragment cli4 on ArticuloModel {
+  id
+  descripcion
+}

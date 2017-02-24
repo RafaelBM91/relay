@@ -6,21 +6,7 @@ export class ClienteRoute extends Relay.Route {
     cliente: (Component) => {
       return Relay.QL`
       query {
-        clientes {
-          ${Component.getFragment('cliente')}
-        }
-      }
-    `},
-  };
-}
-
-export class ClienteIdRoute extends Relay.Route {
-  static routeName = 'ClienteIdRoute';
-  static queries = {
-    cliente: (Component) => {
-      return Relay.QL`
-      query {
-        clienteId(id:1) {
+        cliente {
           ${Component.getFragment('cliente')}
         }
       }
@@ -33,7 +19,7 @@ export class ArticuloRoute extends Relay.Route {
   static queries = {
     articulo: (Component) => Relay.QL`
       query {
-        articulo {
+        articulos {
           ${Component.getFragment('articulo')}
         }
       }
