@@ -30,11 +30,3 @@ class App extends Component {
 }
 
 export default App;
-
-/*
-<Relay.Renderer
-          environment={Relay.Store}
-          Container={clientes}
-          queryConfig={new AppHomeRoute()}
-        />
-*/

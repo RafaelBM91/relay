@@ -1,128 +1,90 @@
 import React, { Component } from 'react';
 import Relay from 'react-relay';
 
-class Articulo extends React.Component {
-  render() {
-    var {id,descripcion} = this.props.articulo;
-    return (
-      <span>id: {id} | descripcion: {descripcion}</span>
-    );
+class ClienteMutation extends Relay.Mutation {
+  static fragments = {
+    cliente: () => Relay.QL`
+      fragment on ClienteType { codigo }
+    `,
+  };
+  getMutation() {
+    return Relay.QL`
+      mutation{ ClienteMutation }
+    `;
+  }
+  getFatQuery() {
+    return Relay.QL`
+      fragment on ClienteMutationPayload { 
+        cliente {
+          cedula,
+          nombre,
+          telefono,
+        },
+      }
+    `;
+  }
+  getConfigs() {
+    return [{
+      type: 'FIELDS_CHANGE',
+      fieldIDs: { cliente: this.props.cliente.codigo },
+    }];
+  }
+  getVariables() {
+    return {
+      cedula: this.props.cedula,
+      nombre: this.props.nombre,
+      telefono: this.props.telefono,
+    };
   }
 }
-
-Articulo = Relay.createContainer(Articulo, {
-  fragments: {
-    articulo: () => Relay.QL`
-      fragment on ArticuloModel {
-        id
-        descripcion,
-      }
-    `,
-  },
-})
-
-class Detalles extends React.Component {
-  render() {
-    var {cantidad,articulo} = this.props.detalles;
-    return (
-      <div>
-        <span>cantidad: {cantidad}</span>&nbsp;&nbsp;
-        {
-          articulo.map( (articulo,index) =>
-            <Articulo key={`articulo-${index}`} articulo={articulo} />
-          )
-        }
-      </div>
-    );
-  }
-}
-
-Detalles = Relay.createContainer(Detalles, {
-  fragments: {
-    detalles: () => Relay.QL`
-      fragment on DetalleModel {
-        cantidad,
-        articulo {
-          ${Articulo.getFragment('articulo')}
-        }
-      }
-    `,
-  },
-})
 
 class Cliente extends React.Component {
+  constructor(props) {
+    super(props);
+    this._handleBuscar = this._handleBuscar.bind(this);
+    this._handleGuardar = this._handleGuardar.bind(this);
+  }
+  componentDidUpdate(prevProps, prevState) {
+    let { cliente } = this.props.cliente;
+    if (cliente.length) {
+      this.refs.nombre.value = cliente[0].nombre;
+      this.refs.telefono.value = cliente[0].telefono;
+    }
+  }
+  _handleBuscar() {
+    let cedula = (this.refs.cedula.value) ? this.refs.cedula.value : '';
+    this.props.relay.setVariables({ cedula });
+  }
+  _handleGuardar() {
+    let operacion = Relay.Store.applyUpdate(
+      new ClienteMutation({
+        cliente: this.props.cliente,
+        cedula: this.refs.cedula.value,
+        nombre: this.refs.nombre.value,
+        telefono: this.refs.telefono.value,
+      })
+    );
+    operacion.commit();
+  }
   render() {
-    var {nombre,telefono,detalles} = this.props.cliente;
     return (
-      <tr>
-        <td>{nombre}&nbsp;&nbsp;|</td>
-        <td>{telefono}&nbsp;&nbsp;|</td>
-        <td>
-          <ul>
-            {
-              detalles.map( (detalles,index) =>
-                <Detalles key={`detalles-${index}`} detalles={detalles} />
-              )
-            }
-          </ul>
-        </td>
-      </tr>
+      <div>
+        <h1>Cliente</h1>
+        <input ref="cedula" placeholder="Cedula" type="text" defaultValue="19529584" />
+        <br/><br/>
+        <input ref="nombre" placeholder="Nombre" type="text" />
+        <br/><br/>
+        <input ref="telefono" placeholder="Telefono" type="text" />
+        <br/><br/>
+        <input type="button" value="Buscar" onClick={this._handleBuscar} />
+        &nbsp;&nbsp;
+        <input type="button" value="Guardar" onClick={this._handleGuardar} />
+      </div>
     );
   }
 }
 
 Cliente = Relay.createContainer(Cliente, {
-  fragments: {
-    cliente: () => Relay.QL`
-      fragment on ClienteModel {
-        nombre,
-        telefono,
-        detalles {
-          ${Detalles.getFragment('detalles')}
-        }
-      }
-    `,
-  },
-});
-
-class Store extends React.Component {
-  constructor(props) {
-    super(props);
-    this._handle = this._handle.bind(this);
-  }
-  _handle() {
-    let cedula = (this.refs.cedula.value) ? this.refs.cedula.value : '';
-    this.props.relay.setVariables({ cedula });
-  }
-  render() {
-    return (
-      <div>
-        cedula:
-        &nbsp;&nbsp;
-        <input ref="cedula" placeholder="cedula" type="text" />
-        &nbsp;&nbsp;
-        <input type="button" value="Consulta" onClick={this._handle} />
-        <h3>Cliente</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>NOMBRE</th>
-              <th>TELEFONO</th>
-              <th>COMPRAS</th>
-            </tr>
-          </thead>
-          <tbody>
-            {this.props.cliente.cliente.map(
-              (cliente,index) => <Cliente key={`cliente-${index}`} cliente={cliente} />
-            )}
-          </tbody>
-        </table>
-      </div>
-    );
-  }
-}
-
-Store = Relay.createContainer(Store, {
   initialVariables: {
     cedula: '',
   },
@@ -130,14 +92,16 @@ Store = Relay.createContainer(Store, {
     cliente: () => Relay.QL`
       fragment on ClienteType {
         cliente (cedula:$cedula) {
-          ${Cliente.getFragment('cliente')}
+          nombre,
+          telefono,
         },
+        ${ClienteMutation.getFragment('cliente')},
       }
     `,
   },
 });
 
-export default Store;
+export default Cliente;
 
 /*
 

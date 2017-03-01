@@ -41,16 +41,8 @@ const Articulo = sequelize.define('articulo',{
   },
 });
 
-const Detalle = sequelize.define('detalle',{
-  cantidad: {
-    type: Sequelize.INTEGER,
-    allowNull: false,
-  },
-});
-
-Cliente.hasMany(Detalle);
-
-Articulo.hasMany(Detalle);
+// Cliente.hasMany(Detalle);
+// Articulo.hasMany(Detalle);
 
 sequelize.sync();
 

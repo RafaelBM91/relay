@@ -17,13 +17,14 @@ export class ClienteRoute extends Relay.Route {
 export class ArticuloRoute extends Relay.Route {
   static routeName = 'ArticuloRoute';
   static queries = {
-    articulo: (Component) => Relay.QL`
+    articulos: (Component) => {
+      return Relay.QL`
       query {
         articulos {
-          ${Component.getFragment('articulo')}
+          ${Component.getFragment('articulos')}
         }
       }
-    `,
+    `},
   };
 }
 
